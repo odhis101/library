@@ -6,6 +6,15 @@ import Book from '../models/books.js';
 const router = express.Router();
 
 // Route to handle user borrowing a book
+router.get('/', async(req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(400).json("Error:" + err.message);
+    }
+});
+
 router.post('/borrow/:username/:bookId', async(req, res) => {
     const { username, bookId } = req.params;
 
@@ -64,7 +73,7 @@ router.get('/borrowed/:username', async(req, res) => {
     const { username } = req.params;
 
     try {
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username }).populate('borrowedBooks');
 
         if (!user || user.borrowedBooks.length === 0) {
             return res.status(404).json("User not found or user has not borrowed any books");
@@ -75,5 +84,6 @@ router.get('/borrowed/:username', async(req, res) => {
         res.status(400).json("Error:" + err.message);
     }
 });
+
 
 export default router;

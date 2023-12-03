@@ -43,6 +43,7 @@ router.post('/login', (req, res) => {
     const { username, password } = req.body;
     User.findOne({ username }).then((user) => {
         if (user && bcrypt.compareSync(password, user.password)) {
+
             res.json(user);
         } else {
             res.status(400).json("Invalid username or password");
@@ -50,14 +51,20 @@ router.post('/login', (req, res) => {
     }).catch((err) => res.status(400).json("Error:" + err));
 });
 
+
 // Route to get user profile
 router.get('/profile', (req, res) => {
+    // Extract the username from the query parameters
+    const { username } = req.query;
 
-    // Handle getting user profile logic here
-    const { username } = req.body;
+    // Find the user in the database
     User.findOne({ username }).then((user) => {
+        // If the user is found, send the user data as a response
         res.json(user);
-    }).catch((err) => res.status(400).json("Error:" + err));
+    }).catch((err) => {
+        // If an error occurs, send an error message
+        res.status(400).json("Error:" + err);
+    });
 });
 
 // Route to update user profile
@@ -102,6 +109,13 @@ router.post('/books', (req, res) => {
     const { title, author, description } = req.body;
     const book = new Book({ title, author, description });
     book.save().then(() => res.json("Book added")).catch((err) => res.status(400).json("Error:" + err));
+});
+// get all books 
+router.get('/books', (req, res) => {
+    // Handle getting all books logic here
+    Book.find().then((books) => {
+        res.json(books);
+    }).catch((err) => res.status(400).json("Error:" + err));
 });
 
 export default router;
